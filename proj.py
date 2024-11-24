@@ -1,4 +1,9 @@
 import json
+import hashlib
+from cryptography.hazmat.primitives import hashes
+from cryptography.hazmat.primitives.serialization import load_pem_public_key
+from cryptography.hazmat.backends import default_backend
+from cryptography.hazmat.primitives.asymmetric import ec
 
 # UTXO 집합 및 스택 초기화
 global_utxo_set = []
@@ -24,16 +29,23 @@ def find_utxo(utxo_id):
             return utxo
     return None
 
-# SHA256, RIPEMD160 해시 함수 구현(라이브러리 찾앙서 채워넣기)
+# SHA256, RIPEMD160 해시 함수 구현
 def hash_function(data):
-    return 1
-
-# (secp256k1 <- 얘로 써야함) ECDSA 서명 검증 (라이브러리 찾아보고 채워넣기)
-def verify_signature():
     
-    if 1 == 1:
+    sha256_hash = hashlib.sha256(data.encode()).digest()   # ripemd로 한번 더 hash할 경우 .digest() 사용해서 바이너리로 전달
+    ripemd160_hash = hashlib.new('ripemd160')
+    ripemd160_hash.update(sha256_hash)
+
+    return ripemd160_hash.hexdigest()
+
+# ECDSA 서명 검증
+def verify_signature(public_key, signature, message):
+    try:
+        public_key = load_pem_public_key(public_key.encode(), backend=default_backend())  # 해당 함수에서 pk가 secp256k1 기반이면 그에 맞춰 자동으로 처리 
+        public_key.verify(bytes.fromhex(signature), message.encode(), ec.ECDSA(hashes.SHA256()))
         return True
-    else:
+    except Exception as e:
+        print(f"서명 검증 실패: {e}")
         return False
 
 # 스크립트를 실행하여 검증(명령어, 조건문 로직 추가하고 수정하기)
@@ -70,7 +82,7 @@ def execute_scripts(unlocking_script, locking_script):
                 signature = global_stack.pop()
                 public_key = global_stack.pop()
                 message = ""  # 실제 트랜잭션 데이터넣기 ???
-                if not verify_signature():
+                if not verify_signature(public_key, signature, message):
                     return False
                 global_stack.append(True)
             else:
