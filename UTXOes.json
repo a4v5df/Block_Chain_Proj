@@ -1,0 +1,20 @@
+[
+    {
+        "txid": "tx1",
+        "output_index": 0,
+        "amount": 50,
+        "locking_script": "DUP HASH 9984c507ce0398c7d6a804ee6c74adef0c526aed EQUALVERIFY CHECKSIG"
+    },
+    {
+        "txid": "tx2",
+        "output_index": 1,
+        "amount": 40,
+        "locking_script": "IF DUP HASH 9984c507ce0398c7d6a804ee6c74adef0c526aed EQUALVERIFY CHECKSIG ELSE CHECKMULTISIG ENDIF"
+    },
+    {
+        "txid": "tx3",
+        "output_index": 2,
+        "amount": 60,
+        "locking_script": "2 pubkey1 pubkey2 pubkey3 3 CHECKMULTISIG"
+    }
+]

@@ -1,0 +1,48 @@
+[
+    {
+        "tx": {
+            "input": {
+                "utxo": "tx1:0",
+                "unlocking_script": "3046022100fab24cfe19268c6c739abf827ea906068761ff4b5cf77f6942a70904f32b5a460221009d5da3899aa65c29f759bdb9af4236a6bb9fddab4d3fc4802f6a610c3802be27 MFYwEAYHKoZIzj0CAQYFK4EEAAoDQgAEgapLylUc8qKKwu8qcORDV8FMaFxT/kwsBn/H4gYmZvgxHFhri2T4rp+SySz7XEauT6jyQ5H0ykJdhs60k6VpCg=="
+            },
+            "outputs": [
+                {
+                    "amount": 30,
+                    "locking_script": "DUP HASH alice_hash EQUALVERIFY CHECKSIG"
+                },
+                {
+                    "amount": 20,
+                    "locking_script": "IF DUP HASH script_hash CHECKSIG ELSE CHECKMULTISIG ENDIF"
+                }
+            ]
+        }
+    },
+    {
+        "tx": {
+            "input": {
+                "utxo": "tx2:1",
+                "unlocking_script": "3046022100fab24cfe19268c6c739abf827ea906068761ff4b5cf77f6942a70904f32b5a460221009d5da3899aa65c29f759bdb9af4236a6bb9fddab4d3fc4802f6a610c3802be27 MFYwEAYHKoZIzj0CAQYFK4EEAAoDQgAEgapLylUc8qKKwu8qcORDV8FMaFxT/kwsBn/H4gYmZvgxHFhri2T4rp+SySz7XEauT6jyQ5H0ykJdhs60k6VpCg== OP_IF OP_CHECKSIG OP_ELSE OP_CHECKMULTISIG OP_ENDIF"
+            },
+            "outputs": [
+                {
+                    "amount": 40,
+                    "locking_script": "CHECKMULTISIG"
+                }
+            ]
+        }
+    },
+    {
+        "tx": {
+            "input": {
+                "utxo": "tx3:2",
+                "unlocking_script": "3046022100fab24cfe19268c6c739abf827ea906068761ff4b5cf77f6942a70904f32b5a460221009d5da3899aa65c29f759bdb9af4236a6bb9fddab4d3fc4802f6a610c3802be27 pubkey1 pubkey2"
+            },
+            "outputs": [
+                {
+                    "amount": 60,
+                    "locking_script": "DUP HASH dave_hash EQUALVERIFY CHECKSIG"
+                }
+            ]
+        }
+    }
+]
