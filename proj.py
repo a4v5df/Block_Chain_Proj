@@ -1,4 +1,5 @@
 import json
+import re
 import hashlib
 from cryptography.hazmat.primitives import hashes
 from cryptography.hazmat.primitives.serialization import load_pem_public_key
@@ -9,6 +10,7 @@ from cryptography.hazmat.primitives.asymmetric import ec
 global_utxo_set = []
 global_transaction_set = []
 global_stack = []
+done_transaction = []
 
 def load_utxo(utxo_file="UTXOes.json"):
     global global_utxo_set
@@ -98,18 +100,51 @@ def verify_signature(public_key, signature, message):
         print(f"서명 검증 실패: {e}")
         return False
 
+# PEM 형식에 맞춰서 스크립트를 적절히 파싱
+def parsing_script(script):
+ 
+    pem_pattern = r"(-----BEGIN PUBLIC KEY-----[\s\S]+?-----END PUBLIC KEY-----\n)"
+    pem_blocks = re.findall(pem_pattern, script)
+    
+    # PEM 블록을 대체한 띄워쓰기 단위로 나눠진 스크립트
+    script_without_pem = re.sub(pem_pattern, " <PEM_BLOCK> ", script)
+    command_list = script_without_pem.split()
+    
+    # PEM 블록을 tokens에 다시 삽입
+    parsed_script = []
+    pem_index = 0
+    for command in command_list:
+        if command == "<PEM_BLOCK>":
+            parsed_script.append(pem_blocks[pem_index])
+            pem_index += 1
+        else:
+            parsed_script.append(command)
+    
+    return parsed_script
+
+
 # 스크립트를 실행하여 검증(명령어, 조건문 로직 추가하고 수정하기)
-def execute_scripts(unlocking_script, locking_script):
-    
+def execute_scripts(unlocking_script = None, locking_script = None, transaction = None):
+
     global global_stack
-    combined_script = unlocking_script.split() + locking_script.split()
-    
+
+    p2sh_flag = False # P2SH 플래그
+    locking_script = parsing_script(locking_script)
+    if locking_script[-2] == 'EQUALVERIFY':  # P2SH인지 확인(마지막 값은 "CHECKFINALRESULT"니까 인덱스는 -2)
+        p2sh_flag = True
+        combined_script = [unlocking_script] + locking_script
+
+    else:
+        unlocking_script = parsing_script(unlocking_script)
+        combined_script = unlocking_script + locking_script
+        
     pc = 0  # 조건문에서 Program counter로 사용
     skip_block = False  # 플래그를 사용하여 조건문 블록 건너뛰기
+    
 
     while pc < len(combined_script):
         op = combined_script[pc]
-
+        
         if op == "IF":
             if not global_stack:
                 return False
@@ -141,130 +176,168 @@ def execute_scripts(unlocking_script, locking_script):
             if global_stack:
                 global_stack.append(global_stack[-1])
             else:
+                print("failed")
+                print(f"failed at {op}")
                 return False
             
         elif op == "HASH":
             if global_stack:
-                global_stack.append(hash_function(global_stack.pop()))   # 여기쯤 뭔가 잘못됨, TX 생성 코드에도 같은 해시 함수를 쓰는데 값이 다르게 나옴
+                global_stack.append(hash_function(global_stack.pop()))  
             else:
+                print("failed")
+                print(f"failed at {op}")
                 return False
             
         elif op == "EQUAL":
             if len(global_stack) >= 2:
                 a, b = global_stack.pop(), global_stack.pop()
-                global_stack.append(a == b) 
+                if a == b:
+                    global_stack.append(a == b) 
+                else: 
+                    print("failed")
+                    print(f"failed at {op}")
+                    return False
             else:
+                print("failed")
+                print(f"failed at {op}")
                 return False
             
         elif op == "EQUALVERIFY":
             if len(global_stack) >= 2:
                 a, b = global_stack.pop(), global_stack.pop()
                 if a != b:
+                    print("failed")
+                    print(f"failed at {op}")
                     return False
             else:
+                print("failed")
+                print(f"failed at {op}")
                 return False
             
         elif op == "CHECKSIG":
             if len(global_stack) >= 2:
-                signature = global_stack.pop()
                 public_key = global_stack.pop()
-                message = create_message(transaction)
+                signature = global_stack.pop()
+                message = "test_message"
                 if not verify_signature(public_key, signature, message):
+                    print("failed")
+                    print(f"failed at {op}")    
                     return False
-                global_stack.append(True)
+                else:
+                    global_stack.append(True)
             else:
+                print("failed")
+                print(f"failed at {op}")
                 return False
                 
         elif op == "CHECKSIGVERIFY":
             if len(global_stack) >= 2:
-                signature = global_stack.pop()
                 public_key = global_stack.pop()
-                message = create_message(transaction)
+                signature = global_stack.pop()
+                message = "test_message"
                 if not verify_signature(public_key, signature, message):
-                    return False
+                    print("failed")
+                    print(f"failed at {op}")
+                    return False  
             else:
+                print("failed")
+                print(f"failed at {op}")
                 return False
 
 
         elif op == "CHECKMULTISIG":
             if len(global_stack) < 3:
+                print("failed")
+                print(f"failed at {op}")
                 return False
             
-            num_signatures = int(global_stack.pop())
             num_pubkeys = int(global_stack.pop())
-            
-            if len(global_stack) < num_pubkeys + num_signatures:
-                return False
+            pubkey_list = [global_stack.pop() for _ in range(num_pubkeys)]
 
-            pubkeys = [global_stack.pop() for _ in range(num_pubkeys)]
-            signatures = [global_stack.pop() for _ in range(num_signatures)]
+            num_signatures = int(global_stack.pop())
+            signature_list = [global_stack.pop() for _ in range(num_signatures)]
             # 각각 검증
-            for signature in signatures:
-                verified = False
-                for pubkey in pubkeys:
-                    create_message(transaction)
+            for signature in signature_list:
+                for pubkey in pubkey_list:
+                    message = "test_message"
                     if verify_signature(pubkey, signature, message):  
-                        verified = True
-                        pubkeys.remove(pubkey)  # 사용한 키 제거
+                        pubkey_list.remove(pubkey)  # 사용한 키 제거
+                        signature_list.remove(signature) # 참인 서명 제거
                         break
-                if not verified:
-                    return False
-            
-            global_stack.append(True)
+
+            if signature_list == []:    
+                global_stack.append(True)
+            else:
+                print("failed")
+                print(f"failed at {op}")
+                return False
 
 
         elif op == "CHECKMULTISIGVERIFY":
             if len(global_stack) < 3:
+                print("failed")
+                print(f"failed at {op}")
                 return False
+            
+            num_pubkeys = int(global_stack.pop())
+            pubkey_list = [global_stack.pop() for _ in range(num_pubkeys)]
 
             num_signatures = int(global_stack.pop())
-            num_pubkeys = int(global_stack.pop())
-
-            if len(global_stack) < num_pubkeys + num_signatures:
-                return False
-
-            pubkeys = [global_stack.pop() for _ in range(num_pubkeys)]
-            signatures = [global_stack.pop() for _ in range(num_signatures)]
-
+            signature_list = [global_stack.pop() for _ in range(num_signatures)]
             # 각각 검증
-            for signature in signatures:
-                verified = False
-                for pubkey in pubkeys:
-                    create_message(transaction)
-                    if verify_signature(pubkey, signature, message):
-                        verified = True
-                        pubkeys.remove(pubkey)  
+            for signature in signature_list:
+                for pubkey in pubkey_list:
+                    message = "test_message"
+                    if verify_signature(pubkey, signature, message):  
+                        pubkey_list.remove(pubkey)  # 사용한 키 제거
+                        signature_list.remove(signature) # 참인 서명 제거
                         break
-                if not verified:
-                    return False 
-
-        elif op == "TRUE":
-            global_stack.append(True)
-        elif op == "FALSE":
-            global_stack.append(False)
+                    
+            if signature_list != []:    
+                print("failed")
+                print(f"failed at {op}")
+                return False
+            else:
+                global_stack.append(True)
+        
+        elif op == "CHECKFINALRESULT":
+            if len(global_stack) == 1 and global_stack.pop() == True:
+                
+                # P2SH이고, 실행결과가 True일때 Redeem해서 재귀함수로 스크립트 실행
+                if p2sh_flag == True:
+                    if execute_scripts(unlocking_script, "", transaction):
+                        return True
+                    else:
+                        return False
+                    
+                return True
+            else:
+                return False
+        
         else:
             global_stack.append(op)
     
         pc += 1
-        print(f"{op},{global_stack}","\n"*5)
-        print(f"{pc}")
-    return global_stack == [True]
-
-# 메시지 생성 함수
-def create_message(transaction):
-    tx_str = json.dumps(transaction)
-    return hashlib.sha256(tx_str.encode()).hexdigest()
 
 
 # 트랜잭션 검증
 def verify_transaction(transaction):
     tx_input = transaction['input']
     utxo = find_utxo(tx_input['utxo'])
+
+    print(f"transaction : {calculate_txid(transaction)}")  # 출력형식
+    print(f"input : {tx_input}")
+    for idx, i in enumerate(transaction['outputs']):
+        print(f"output: {idx}  {i}")
+    print("validity check :", end =" ")
+
     if not utxo:
         return False
     
     # 금액 검증
     if utxo['amount'] < sum([i['amount'] for i in transaction['outputs']]):
+        print("failed")
+        print("failed at amount verify")
         return False
     
     # 스크립트 검증
@@ -272,14 +345,15 @@ def verify_transaction(transaction):
     locking_script = utxo['locking_script']
     global global_stack
     global_stack.clear()
-    if not execute_scripts(unlocking_script, locking_script):
+    if not execute_scripts(unlocking_script, locking_script, transaction):
         return False
     
+    print("passed")
     update_utxo_set(transaction, utxo)  # 검증이 참인 경우 UTXO 업데이트 여기서 실행
     return True
 
 
-# Txid 생성
+# Txid 
 def calculate_txid(transaction):
     tx_str = json.dumps(transaction)
     return hashlib.sha256(tx_str.encode()).hexdigest()  
@@ -289,7 +363,6 @@ def calculate_txid(transaction):
 def find_utxo(utxo_id):
     for utxo in global_utxo_set:
         if f"{utxo['txid']}:{utxo['output_index']}" == utxo_id:
-            print("만족하는 UTXO 있음!!")
             return utxo
     print("만족하는 UTXO가 없음")
 
@@ -308,18 +381,37 @@ def update_utxo_set(transaction, utxo):
         }
         global_utxo_set.append(new_utxo)
 
-def process_transactions():
+def snapshot_transactions():
+    print("=== Snapshot Transactions ===")
+    for transaction in done_transaction:  # done_trasaction[0]은 transaction, [1]은 vaildity(passed 또는 failed)
+        txid = calculate_txid(transaction[0])
+        print(f"transaction: {txid}, validity check: {transaction[1]}")
+    
+    print("="*50)
+
+def snapshot_utxoset():
+    print("=== Snapshot UTXO Set ===")
+    for idx, utxo in enumerate(global_utxo_set):    
+        print(f"utxo{idx}: {utxo['txid']}, output index: {utxo['output_index']}, amount: {utxo['amount']}, locking script: {utxo['locking_script']}")
+    print("="*50)
+
+
+def process_transactions():  # 트랜잭션 처리 실행 프로세스
     load_transactions()
     load_utxo()
     global global_transaction_set
 
     for transaction in global_transaction_set:
-        print(f"Processing transaction : {transaction}")
         if verify_transaction(transaction):
             print("Transaction valid")
-
+            done_transaction.append([transaction,"passed"])
+            snapshot_transactions()
+            snapshot_utxoset()
         else:
             print("Transaction invalid")
-        print("="*100,"\n"*5)
+            done_transaction.append([transaction,"failed"])
+            snapshot_transactions()
+            snapshot_utxoset()
+
 
 process_transactions()
