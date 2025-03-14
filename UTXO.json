@@ -1,0 +1,8 @@
+[
+    {
+        "txid": "tx1",
+        "output_index": 0,
+        "amount": 50,
+        "locking_script": "DUP HASH b5dc7f3db8d832a1ee3caddc91bbb82f1f7f5f3c EQUALVERIFY CHECKSIG CHECKFINALRESULT"
+    }
+]

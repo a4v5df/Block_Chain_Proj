@@ -1,0 +1,62 @@
+[
+    {
+        "tx": {
+            "input": {
+                "utxo": "tx1:0",
+                "unlocking_script": "30460221008911fb29d66d4acc637eb0343f6350273cce05b7bf0701f4bd3ee19d8c7c1ba4022100f9d74efa23dad3b263c3732fdbad355ee8fd9bfa79a53defa0e0dc2c3eac8b10 -----BEGIN PUBLIC KEY-----\nMFYwEAYHKoZIzj0CAQYFK4EEAAoDQgAEJu2/rMOE2t7Ywb3Hny1gdvocBG6yaF/R\nmRnxidmTOxULOw/JxGCCi0ztbaBCzg2Lx+xS647WrGtg53K/YI9RBA==\n-----END PUBLIC KEY-----\n"
+            },
+            "outputs": [
+                {
+                    "amount": 30,
+                    "locking_script": "DUP HASH -----BEGIN PUBLIC KEY-----\nMFYwEAYHKoZIzj0CAQYFK4EEAAoDQgAE8sJJ+JMsspwTPQ+Jkv+65i95emsGi0/a\n9UELwU77wquTWFvuqx4vkH81s8EQ9gUPAhfvVpF1/cDdDX4ktFrrSg==\n-----END PUBLIC KEY-----\n EQUALVERIFY CHECKSIG CHECKFINALRESULT"
+                },
+                {
+                    "amount": 20,
+                    "locking_script": "2 -----BEGIN PUBLIC KEY-----\nMFYwEAYHKoZIzj0CAQYFK4EEAAoDQgAE8sJJ+JMsspwTPQ+Jkv+65i95emsGi0/a\n9UELwU77wquTWFvuqx4vkH81s8EQ9gUPAhfvVpF1/cDdDX4ktFrrSg==\n-----END PUBLIC KEY-----\n -----BEGIN PUBLIC KEY-----\nMFYwEAYHKoZIzj0CAQYFK4EEAAoDQgAEJu2/rMOE2t7Ywb3Hny1gdvocBG6yaF/R\nmRnxidmTOxULOw/JxGCCi0ztbaBCzg2Lx+xS647WrGtg53K/YI9RBA==\n-----END PUBLIC KEY-----\n -----BEGIN PUBLIC KEY-----\nMFYwEAYHKoZIzj0CAQYFK4EEAAoDQgAEeZuErXs+AtAa75+6mxFZL212Qxo7bijh\n2Wqp49HKeXlNHIZ/KPII9TAN/0I0hyQ13+M2o3bwxs4Rg7dbeRDEgw==\n-----END PUBLIC KEY-----\n 3 CHECKMULTISIG CHECKFINALRESULT"
+                }
+            ]
+        }
+    },
+    {
+        "tx": {
+            "input": {
+                "utxo": "0328fbc44b1a124b5be6932b075890afbbaaaf3210b0ecc98bd9161b5558fe00:1",
+                "unlocking_script": "3046022100875bdf44f57808e986032060cd9ee003c093add3a946b769fde9526affc75160022100efe28499cfe306c8132c7e7c6628f6b3fd924b3fd40e72e78a9a2d40bc7e8a5a 3046022100fb83a1fabc5ddf12044fae3247fccfa58c68969017019126ee9e85af8d33e451022100aba39797ccbcd3cf1bd6114658e2bf12a778ce21ae8b627c60e7e73b1e21bde1"
+            },
+            "outputs": [
+                {
+                    "amount": 20,
+                    "locking_script": "DUP HASH a05bfe4772af4f15fd3052a943f0207cb5a0c544 EQUALVERIFY CHECKFINALRESULT"
+                }
+            ]
+        }
+    },
+    {
+        "tx": {
+            "input": {
+                "utxo": "2e24adb4e21b88555ae6548a6c0def7709a3a00562366270beb18ed9ac069107:0",
+                "unlocking_script": "30460221008911fb29d66d4acc637eb0343f6350273cce05b7bf0701f4bd3ee19d8c7c1ba4022100f9d74efa23dad3b263c3732fdbad355ee8fd9bfa79a53defa0e0dc2c3eac8b10 -----BEGIN PUBLIC KEY-----\nMFYwEAYHKoZIzj0CAQYFK4EEAAoDQgAEJu2/rMOE2t7Ywb3Hny1gdvocBG6yaF/R\nmRnxidmTOxULOw/JxGCCi0ztbaBCzg2Lx+xS647WrGtg53K/YI9RBA==\n-----END PUBLIC KEY-----\n DUP HASH b5dc7f3db8d832a1ee3caddc91bbb82f1f7f5f3c EQUAL IF CHECKSIG ELSE 2 -----BEGIN PUBLIC KEY-----\nMFYwEAYHKoZIzj0CAQYFK4EEAAoDQgAE8sJJ+JMsspwTPQ+Jkv+65i95emsGi0/a\n9UELwU77wquTWFvuqx4vkH81s8EQ9gUPAhfvVpF1/cDdDX4ktFrrSg==\n-----END PUBLIC KEY-----\n -----BEGIN PUBLIC KEY-----\nMFYwEAYHKoZIzj0CAQYFK4EEAAoDQgAEeZuErXs+AtAa75+6mxFZL212Qxo7bijh\n2Wqp49HKeXlNHIZ/KPII9TAN/0I0hyQ13+M2o3bwxs4Rg7dbeRDEgw==\n-----END PUBLIC KEY-----\n 2 CHECKMULTISIG ENDIF CHECKFINALRESULT"
+            },
+            "outputs": [
+                {
+                    "amount": 20,
+                    "locking_script": "dum_val"
+                }
+            ]
+        }
+    },
+    {
+        "tx": {
+            "input": {
+                "utxo": "0328fbc44b1a124b5be6932b075890afbbaaaf3210b0ecc98bd9161b5558fe00:0",
+                "unlocking_script": "30460221008911fb29d66d4acc637eb0343f6350273cce05b7bf0701f4bd3ee19d8c7c1ba4022100f9d74efa23dad3b263c3732fdbad355ee8fd9bfa79a53defa0e0dc2c3eac8b10 -----BEGIN PUBLIC KEY-----\nMFYwEAYHKoZIzj0CAQYFK4EEAAoDQgAEJu2/rMOE2t7Ywb3Hny1gdvocBG6yaF/R\nmRnxidmTOxULOw/JxGCCi0ztbaBCzg2Lx+xS647WrGtg53K/YI9RBA==\n-----END PUBLIC KEY-----\n"
+            },
+            "outputs": [
+                {
+                    "amount": 30,
+                    "locking_script": "dum_val"
+                }
+            ]
+        }
+    }
+]
